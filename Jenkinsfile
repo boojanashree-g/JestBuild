@@ -57,7 +57,7 @@ pipeline {
                 script {
                     if (fileExists('my-app/package.json')) {
                         dir('my-app') { 
-                            sh 'npm run build || echo "Build faileeed"'
+                            sh 'npm run build || echo "Build failed"'
                         }
                     } else {
                         sh 'npm run build || echo "Build failed"'
