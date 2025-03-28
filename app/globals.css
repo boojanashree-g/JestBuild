@@ -1,0 +1,107 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+
+.feature i {
+  font-size: 30px;
+  /* Adjust size to match your previous image size */
+  color: #4a90e2;
+  /* You can change this color to match your design */
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+  text-align: center;
+  padding: 50px 20px;
+}
+
+.container {
+  max-width: 1200px;
+  margin: auto;
+}
+
+h1 {
+  font-size: 2em;
+  margin-bottom: 0;
+}
+
+p {
+  font-size: 1.2em;
+  color: #333;
+  margin-top: 5px;
+}
+
+.features {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  margin-top: 30px;
+}
+
+.feature {
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 10px;
+  padding: 20px;
+  margin: 10px;
+  width: 200px;
+  text-align: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.feature img {
+  width: 50px;
+  height: 50px;
+}
+
+.feature h3 {
+  margin: 10px 0 5px;
+  font-size: 1em;
+}
+
+.feature p {
+  font-size: 0.9em;
+  color: #666;
+}
+
+.cta-button {
+  margin-top: 30px;
+}
+
+.cta-button a {
+  text-decoration: none;
+  background-color: #4a90e2;
+  color: white;
+  padding: 15px 30px;
+  border-radius: 5px;
+  font-size: 1em;
+  transition: background-color 0.3s;
+}
+
+.cta-button a:hover {
+  background-color: #3a7bd5;
+}
