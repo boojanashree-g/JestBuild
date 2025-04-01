@@ -79,10 +79,10 @@ pipeline {
 
                     echo 'Starting ngrok for public access...'
                     sh '''
-                    nohup ngrok http 3000 --region=in --hostname=1e86-106-51-157-202.ngrok-free.app > ngrok.log 2>&1 &
+                    nohup ngrok http 3000 --region=in --hostname=ac77-115-245-95-234.ngrok-free.app > ngrok.log 2>&1 &
                     sleep 5
                     tail -f ngrok.log
-                    curl -Is https://1e86-106-51-157-202.ngrok-free.app || echo "Ngrok is not respoonding"
+                    curl -Is https://ac77-115-245-95-234.ngrok-free.app || echo "Ngrok is not respoonding"
                     '''
                 }
             }
