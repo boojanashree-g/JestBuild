@@ -18,7 +18,7 @@ pipeline {
                         echo "Installing dependencies in root"
                         sh '''
                         rm -rf node_modules package-lock.json
-                        npm install --verbose > npm-install.log 2>&1 || cat npm-install.log
+                        npm install > npm-install.log 2>&1 || cat npm-install.log
                         '''
                     } 
                     else if (fileExists("${projectDir}/package.json")) {
