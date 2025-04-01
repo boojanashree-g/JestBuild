@@ -73,7 +73,6 @@ pipeline {
                     sh '''
                     nohup npm run start > app.log 2>&1 &
                     sleep 5
-                    tail -f app.log
                     curl -Is http://localhost:3000 || echo "App is not responding"
                     '''
 
