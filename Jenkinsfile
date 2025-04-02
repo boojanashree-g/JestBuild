@@ -68,16 +68,34 @@ pipeline {
             }
         }
 
-        stage('Deploy') {
+        stage('Deploy with ngrok') {
             steps {
                 script {
+                    // Install ngrok if needed
+                    sh 'npm install -g ngrok || true'
+                    
+                    // Kill any existing processes
+                    sh 'pkill -f "npm start" || true'
+                    sh 'pkill -f ngrok || true'
+                    
+                    // Start your Next.js app
                     sh 'nohup npm start > app.log 2>&1 &'
-                    echo "Application deployed at: https://af91-115-245-95-234.ngrok-free.app"
+                    
+                    // Wait for app to start
+                    sh 'sleep 10'
+                    
+                    // Start ngrok (free plan version)
+                    sh 'ngrok http 3000 --log=stdout > ngrok.log 2>&1 &'
+                    
+                    // Get and display the URL
+                    sh '''
+                    sleep 5
+                    NGROK_URL=$(curl -s http://localhost:4040/api/tunnels | grep -o "https://[^\"]*ngrok-free.app")
+                    echo "Application deployed at: $NGROK_URL"
+                    '''
                 }
-
-
             }
-        }   
+        }
 
     }
 
