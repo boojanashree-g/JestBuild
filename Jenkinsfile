@@ -88,7 +88,7 @@ pipeline {
                     sh '''
                     nohup ngrok http 3000 --region=in --hostname=eb59-103-186-220-234.ngrok-free.app > ngrok.log 2>&1 &
                     sleep 10  # Increased sleep time
-                    curl -Is https://eb59-103-186-220-234.ngrok-free.app | grep "200 OK" || (echo "Ngrok is not respondingS"; cat ngrok.log; exit 1)
+                    curl -Is https://eb59-103-186-220-234.ngrok-free.app | grep "200 OK" || (echo "Ngrok is not respondingSS"; cat ngrok.log; exit 1)
                     '''
                 }
             }
