@@ -7,34 +7,34 @@ pipeline {
     }
 
     stages {
-        stage('Install Dependencies') {
-            steps {
-                script {
-                    def projectDir = 'my-app'
+        // stage('Install Dependencies') {
+        //     steps {
+        //         script {
+        //             def projectDir = 'my-app'
 
-                    sh 'npm cache clean --force'
+        //             sh 'npm cache clean --force'
 
-                    if (fileExists("package.json")) {
-                        echo "Installing dependencies in root"
-                        sh '''
-                        rm -rf node_modules package-lock.json
-                        npm install > npm-install.log 2>&1 || cat npm-install.log
-                        '''
-                    } 
-                    else if (fileExists("${projectDir}/package.json")) {
-                        echo "Installing dependencies in ${projectDir}"
-                        dir(projectDir) {
-                            sh '''
-                            rm -rf node_modules package-lock.json
-                            npm install
-                            '''
-                        }
-                    } else {
-                        error("package.json not found, aborting.")
-                    }
-                }
-            }
-        }
+        //             if (fileExists("package.json")) {
+        //                 echo "Installing dependencies in root"
+        //                 sh '''
+        //                 rm -rf node_modules package-lock.json
+        //                 npm install > npm-install.log 2>&1 || cat npm-install.log
+        //                 '''
+        //             } 
+        //             else if (fileExists("${projectDir}/package.json")) {
+        //                 echo "Installing dependencies in ${projectDir}"
+        //                 dir(projectDir) {
+        //                     sh '''
+        //                     rm -rf node_modules package-lock.json
+        //                     npm install
+        //                     '''
+        //                 }
+        //             } else {
+        //                 error("package.json not found, aborting.")
+        //             }
+        //         }
+        //     }
+        // }
 
         stage('Run Tests') {
             when { expression { return fileExists('my-app/package.json') || fileExists('package.json') } }
@@ -71,10 +71,17 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
+                    echo 'Stopping existing Node.js and ngrok processes...'
+                    sh '''
+                    pkill -f "node" || echo "No running Node.js process found"
+                    pkill -f "ngrok" || echo "No running ngrok process found"
+                    '''
+
                     echo 'Starting application on port 3000...'
                     sh '''
                     nohup npm run start > app.log 2>&1 &
                     sleep 5
+                    curl -Is http://localhost:3000 | grep "200 OK" || (echo "App failed to start"; cat app.log; exit 1)
                     '''
 
                     echo 'Starting ngrok...'
@@ -82,7 +89,10 @@ pipeline {
                     nohup ngrok http 3000 --hostname=af91-115-245-95-234.ngrok-free.app > ngrok.log 2>&1 &
                     sleep 5
                     '''
+
+                    echo "App is accessible at: https://af91-115-245-95-234.ngrok-free.app"
                 }
+
 
             }
         }   
