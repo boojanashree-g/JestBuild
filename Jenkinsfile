@@ -46,7 +46,7 @@ pipeline {
                     echo 'Starting application on port 3000...'
                     nohup npm run start > app.log 2>&1 &
 
-                    echo "Deeployment completed. App is accessible at http://${EC2_HOST}:3000"
+                    echo "Deployment completed. App is accessible at http://${EC2_HOST}:3000"
                     EOF
                     """
                 }
