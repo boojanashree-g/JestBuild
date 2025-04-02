@@ -75,14 +75,12 @@ pipeline {
                     sh '''
                     nohup npm run start > app.log 2>&1 &
                     sleep 5
-                    curl -Is http://localhost:3000 || echo "App is not responding"
                     '''
 
                     echo 'Starting ngrok...'
                     sh '''
                     nohup ngrok http 3000 --hostname=af91-115-245-95-234.ngrok-free.app > ngrok.log 2>&1 &
                     sleep 5
-                    curl -s http://localhost:4040/api/tunnels | jq -r '.tunnels[0].public_url'
                     '''
                 }
 
