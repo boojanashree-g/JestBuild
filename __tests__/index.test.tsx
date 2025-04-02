@@ -31,7 +31,4 @@ describe("Home Component", () => {
     });
   });
 
-  test("renders the Request a DEMO button", () => {
-    expect(screen.getByText(/Request a DEMO/i)).toBeInTheDocument();
-  });
 });

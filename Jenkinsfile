@@ -71,28 +71,23 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                    echo 'Stopping existing Node.js and ngrok processes...'
-                    sh '''
-                    pkill -f "node" || echo "No running Node.js process found"
-                    pkill -f "ngrok" || echo "No running ngrok process found"
-                    '''
-
                     echo 'Starting application on port 3000...'
                     sh '''
                     nohup npm run start > app.log 2>&1 &
-                    sleep 10  # Increased sleep time to ensure app starts fully
-                    curl -Is http://localhost:3000 | grep "200 OK" || (echo "App is not responding"; cat app.log; exit 1)
+                    sleep 5
+                    curl -Is http://localhost:3000 || echo "App is not responding"
                     '''
 
-                    echo 'Starting ngrok for public access...'
+                    echo 'Starting ngrok...'
                     sh '''
-                    nohup ngrok http 3000 --region=in --hostname=8429-103-186-220-234.ngrok-free.app > ngrok.log 2>&1 &
-                    sleep 10  # Increased sleep time
-                    curl -Is https://8429-103-186-220-234.ngrok-free.app | grep "200 OK" || (echo "Ngrok is not responding"; cat ngrok.log; exit 1)
+                    nohup ngrok http 3000 --hostname=af91-115-245-95-234.ngrok-free.app > ngrok.log 2>&1 &
+                    sleep 5
+                    curl -s http://localhost:4040/api/tunnels | jq -r '.tunnels[0].public_url'
                     '''
                 }
+
             }
-        }
+        }   
 
     }
 

@@ -47,9 +47,6 @@ export default function Home() {
         <p>ShareLooks allowed you to do Live Broadcasting, Live Assessment, Live</p>
       </div>
     </div>
-    <div className="cta-button">
-      <a href="#">Request a DEMO</a>
-    </div>
   </div>
   );
 }
