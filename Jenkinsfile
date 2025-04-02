@@ -68,7 +68,7 @@ pipeline {
             }
         }
 
-        stage('Deploy with ngrok') {
+       stage('Deploy with ngrok') {
             steps {
                 script {
                     // Install ngrok if needed
@@ -87,7 +87,7 @@ pipeline {
                     // Start ngrok (free plan version)
                     sh 'ngrok http 3000 --log=stdout > ngrok.log 2>&1 &'
                     
-                    // Get and display the URL
+                    // Get and display the URL - fixed syntax
                     sh '''
                     sleep 5
                     NGROK_URL=$(curl -s http://localhost:4040/api/tunnels | grep -o "https://[^\"]*ngrok-free.app")
