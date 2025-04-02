@@ -98,7 +98,7 @@ pipeline {
     environment {
         NODEJS_HOME = tool 'NodeJS-18'
         PATH = "${NODEJS_HOME}/bin:${env.PATH}"
-        NGROK_HOST = "https://af91-115-245-95-234.ngrok-free.app" // Update if needed
+        NGROK_HOST = "https://8429-103-186-220-234.ngrok-free.app/" 
     }
 
     stages {
