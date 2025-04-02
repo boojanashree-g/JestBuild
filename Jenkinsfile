@@ -86,9 +86,9 @@ pipeline {
 
                     echo 'Starting ngrok for public access...'
                     sh '''
-                    nohup ngrok http 3000 --region=in --hostname=eb59-103-186-220-234.ngrok-free.app > ngrok.log 2>&1 &
+                    nohup ngrok http 3000 --region=in --hostname=8429-103-186-220-234.ngrok-free.app > ngrok.log 2>&1 &
                     sleep 10  # Increased sleep time
-                    curl -Is https://eb59-103-186-220-234.ngrok-free.app | grep "200 OK" || (echo "Ngrok is not respondingSSS"; cat ngrok.log; exit 1)
+                    curl -Is https://8429-103-186-220-234.ngrok-free.app | grep "200 OK" || (echo "Ngrok is not responding"; cat ngrok.log; exit 1)
                     '''
                 }
             }
