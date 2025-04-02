@@ -1,104 +1,12 @@
-// pipeline {
-//     agent any
-
-//     environment {
-//         NODEJS_HOME = tool 'NodeJS-18'
-//         PATH = "${NODEJS_HOME}/bin:${env.PATH}"
-//     }
-
-//     stages {
-//         // stage('Install Dependencies') {
-//         //     steps {
-//         //         script {
-//         //             def projectDir = 'my-app'
-
-//         //             sh 'npm cache clean --force'
-
-//         //             if (fileExists("package.json")) {
-//         //                 echo "Installing dependencies in root"
-//         //                 sh '''
-//         //                 rm -rf node_modules package-lock.json
-//         //                 npm install > npm-install.log 2>&1 || cat npm-install.log
-//         //                 '''
-//         //             } 
-//         //             else if (fileExists("${projectDir}/package.json")) {
-//         //                 echo "Installing dependencies in ${projectDir}"
-//         //                 dir(projectDir) {
-//         //                     sh '''
-//         //                     rm -rf node_modules package-lock.json
-//         //                     npm install
-//         //                     '''
-//         //                 }
-//         //             } else {
-//         //                 error("package.json not found, aborting.")
-//         //             }
-//         //         }
-//         //     }
-//         // }
-
-//         stage('Run Tests') {
-//             when { expression { return fileExists('my-app/package.json') || fileExists('package.json') } }
-//             steps {
-//                 script {
-//                     if (fileExists('my-app/package.json')) {
-//                         dir('my-app') { 
-//                             sh 'npm test || echo "Tests failed"'
-//                         }
-//                     } else {
-//                         sh 'npm test || echo "Tests failed"'
-//                     }
-//                 }
-//             }
-//         }
-
-//         stage('Build') {
-//             when { expression { return fileExists('my-app/package.json') || fileExists('package.json') } }
-//             steps {
-//                 script {
-//                     if (fileExists('my-app/package.json')) {
-//                         dir('my-app') { 
-//                             sh 'rm -rf .next/'
-//                             sh 'npm run build || echo "Build failed"'
-//                         }
-//                     } else {
-//                         sh 'rm -rf .next/'
-//                         sh 'npm run build || echo "Build failed"'
-//                     }
-//                 }
-//             }
-//         }
-
-//         stage('Deploy') {
-//             steps {
-//                 script {
-//                     sh 'nohup npm start > app.log 2>&1 &'
-//                     echo "Application deployed at: https://af91-115-245-95-234.ngrok-free.app"
-//                 }
-
-
-//             }
-//         }   
-
-//     }
-
-//     post {
-//         success {
-//             echo 'Pipeline completed successfully!'
-//         }
-//         failure {
-//             echo 'Pipeline failed. Check logs for errors.'
-//         }
-//     }
-// }
-
-
 pipeline {
     agent any
 
     environment {
         NODEJS_HOME = tool 'NodeJS-18'
         PATH = "${NODEJS_HOME}/bin:${env.PATH}"
-        NGROK_HOST = "https://8429-103-186-220-234.ngrok-free.app/" 
+        EC2_USER = 'ubuntu'  
+        EC2_HOST = '35.177.162.241' 
+        APP_DIR = '/home/ubuntu/my-app'  
     }
 
     stages {
@@ -111,107 +19,48 @@ pipeline {
             }
         }
 
-        stage('Install Dependencies') {
+        stage('Deploy to EC2') {
             steps {
                 script {
-                    def projectDir = 'my-app'
+                    sh """
+                    ssh -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST} << 'EOF'
+                    echo 'Deploying application on EC2...'
+                    cd ${APP_DIR} || exit 1
+                    git pull origin main || exit 1
 
-                    sh 'npm cache clean --force'
+                    echo 'Installing dependencies...'
+                    rm -rf node_modules package-lock.json
+                    npm install
 
-                    if (fileExists("package.json")) {
-                        echo "Installing dependencies in root"
-                        sh '''
-                        rm -rf node_modules package-lock.json
-                        npm install > npm-install.log 2>&1 || cat npm-install.log
-                        '''
-                    } 
-                    else if (fileExists("${projectDir}/package.json")) {
-                        echo "Installing dependencies in ${projectDir}"
-                        dir(projectDir) {
-                            sh '''
-                            rm -rf node_modules package-lock.json
-                            npm install
-                            '''
-                        }
-                    } else {
-                        error("package.json not found, aborting.")
-                    }
-                }
-            }
-        }
+                    echo 'Running tests...'
+                    npm test || echo "Tests failed"
 
-        stage('Run Tests') {
-            when { expression { return fileExists('my-app/package.json') || fileExists('package.json') } }
-            steps {
-                script {
-                    if (fileExists('my-app/package.json')) {
-                        dir('my-app') { 
-                            sh 'npm test || echo "Tests failed"'
-                        }
-                    } else {
-                        sh 'npm test || echo "Tests failed"'
-                    }
-                }
-            }
-        }
+                    echo 'Building application...'
+                    rm -rf .next/
+                    npm run build || echo "Build failed"
 
-        stage('Build') {
-            when { expression { return fileExists('my-app/package.json') || fileExists('package.json') } }
-            steps {
-                script {
-                    if (fileExists('my-app/package.json')) {
-                        dir('my-app') { 
-                            sh 'rm -rf .next/'
-                            sh 'npm run build || echo "Build failed"'
-                        }
-                    } else {
-                        sh 'rm -rf .next/'
-                        sh 'npm run build || echo "Build failed"'
-                    }
-                }
-            }
-        }
-
-        stage('Deploy') {
-            steps {
-                script {
                     echo 'Stopping any running app instances...'
-                    sh '''
                     pkill -f "node .next/server" || echo "No existing process found"
                     sleep 3
-                    '''
-
-                    echo 'Removing old build files...'
-                    sh '''
-                    rm -rf .next/ 
-                    '''
 
                     echo 'Starting application on port 3000...'
-                    sh '''
                     nohup npm run start > app.log 2>&1 &
-                    sleep 5
-                    curl -Is http://localhost:3000 || echo "App is not responding"
-                    '''
 
-                    echo 'Restarting Ngrok...'
-                    sh '''
-                    pkill -f "ngrok" || echo "No existing ngrok process found"
-                    nohup ngrok http 3000 --region=in > ngrok.log 2>&1 &
-                    sleep 5
-                    '''
-
-                    echo "Your app is accessible at: ${NGROK_HOST}"
+                    echo "Deployment completed. App is accessible at http://${EC2_HOST}:3000"
+                    EOF
+                    """
                 }
             }
         }
     }
+
     post {
         success {
-            echo 'Pipeline completed successfully!'
-            echo "App is accessible at: ${NGROK_HOST}"
+            echo 'Deployment successful!'
+            echo "App is accessible at: http://${EC2_HOST}:3000"
         }
         failure {
-            echo 'Pipeline failed. Check logs for errors.'
+            echo 'Deployment failed. Check logs for details.'
         }
     }
 }
