@@ -44,7 +44,7 @@ export default function Home() {
       <div className="feature">
         <i className="fas fa-user"></i> 
         <h3>MetaMAZE</h3>
-        <p>ShareLooks allowed you to do Live Broadcasting, Live Assessment, Live</p>
+        <p>ShareLooks allowed you to do Live Broadcasting, Live Assessmentsssssss.</p>
       </div>
     </div>
   </div>
