@@ -57,9 +57,11 @@ pipeline {
                 script {
                     if (fileExists('my-app/package.json')) {
                         dir('my-app') { 
+                            sh 'rm -rf .next/'
                             sh 'npm run build || echo "Build failed"'
                         }
                     } else {
+                        sh 'rm -rf .next/'
                         sh 'npm run build || echo "Build failed"'
                     }
                 }
@@ -67,24 +69,28 @@ pipeline {
         }
 
       stage('Deploy') {
-            steps {
-                script {
-                    echo 'Starting application on port 3000...'
-                    sh '''
-                    nohup npm run start > app.log 2>&1 &
-                    sleep 5
-                    curl -Is http://localhost:3000 || echo "App is not responding"
-                    '''
+        steps {
+            script {
+                echo 'Stopping any running app instances...'
+                sh 'pkill -f "node .next/server" || echo "No existing process found"'
 
-                    echo 'Starting ngrok for public access...'
-                    sh '''
-                    nohup ngrok http 3000 --region=in --hostname=ac77-115-245-95-234.ngrok-free.app > ngrok.log 2>&1 &
-                    sleep 5                   
-                    curl -Is https://ac77-115-245-95-234.ngrok-free.app || echo "Ngrok is not responnding"
-                    '''
-                }
+                echo 'Starting application on port 3000...'
+                sh '''
+                nohup npm run start > app.log 2>&1 &
+                sleep 5
+                curl -Is http://localhost:3000 || echo "App is not responding"
+                '''
+
+                echo 'Starting ngrok for public access...'
+                sh '''
+                nohup ngrok http 3000 --region=in --hostname=af91-115-245-95-234.ngrok-free.app > ngrok.log 2>&1 &
+                sleep 5
+                curl -Is https://af91-115-245-95-234.ngrok-free.app || echo "Ngrok is not responding"
+                '''
             }
         }
+    }
+
 
     }
 
