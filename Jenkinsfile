@@ -176,7 +176,15 @@ pipeline {
             steps {
                 script {
                     echo 'Stopping any running app instances...'
-                    sh 'pkill -f "node .next/server" || echo "No existing process found"'
+                    sh '''
+                    pkill -f "node .next/server" || echo "No existing process found"
+                    sleep 3
+                    '''
+
+                    echo 'Removing old build files...'
+                    sh '''
+                    rm -rf .next/ 
+                    '''
 
                     echo 'Starting application on port 3000...'
                     sh '''
@@ -185,15 +193,11 @@ pipeline {
                     curl -Is http://localhost:3000 || echo "App is not responding"
                     '''
 
-                    echo 'Checking if Ngrok is running...'
+                    echo 'Restarting Ngrok...'
                     sh '''
-                    if ! pgrep -f "ngrok"; then
-                        echo "Starting Ngrok..."
-                        nohup ngrok http 3000 --region=in > ngrok.log 2>&1 &
-                        sleep 5
-                    else
-                        echo "Ngrok is already running."
-                    fi
+                    pkill -f "ngrok" || echo "No existing ngrok process found"
+                    nohup ngrok http 3000 --region=in > ngrok.log 2>&1 &
+                    sleep 5
                     '''
 
                     echo "Your app is accessible at: ${NGROK_HOST}"
@@ -201,7 +205,6 @@ pipeline {
             }
         }
     }
-
     post {
         success {
             echo 'Pipeline completed successfully!'
